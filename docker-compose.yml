@@ -30,6 +30,8 @@ services:
       - "work_mem=16MB"
       - "-c"
       - "maintenance_work_mem=512MB"
+    ports:
+      - "5432:5432"
     env_file:
       - ./.env
     volumes:

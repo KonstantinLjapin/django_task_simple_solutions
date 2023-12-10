@@ -1,5 +1,18 @@
 import environ
 import os
+from pathlib import Path
+from dataclasses import dataclass
+
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False)
+)
+
+# Set the project base directory
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Take environment variables from .env file
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 """
 Django settings for ssite project.
@@ -13,11 +26,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
-from pathlib import Path
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -28,8 +38,7 @@ SECRET_KEY = 'django-insecure-!q6(*b4!x9y1=z!qt(&3h36d^zqzr=fl0&hs@b(_uxxingz4ry
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['localhost', '127.0.0.2', '0.0.0.0']
 
 # Application definition
 
@@ -40,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'example',
     'django.contrib.postgres'
 ]
 
@@ -73,17 +83,29 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ssite.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+"""
+db=Database(
+            host=env.str("POSTGRES_HOST"),
+            user=env.str("POSTGRES_USER"),
+            name=env.str("POSTGRES_DB"),
+            port=env.str("POSTGRES_PORT"),
+            password=env.str("POSTGRES_PASSWORD"),
+        ),
+"""
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',  # Используется PostgreSQL
+        'NAME': env.str("POSTGRES_DB"),  # Имя базы данных
+        'USER': env.str("POSTGRES_USER"),  # Имя пользователя
+        'PASSWORD': env.str("POSTGRES_PASSWORD"),  # Пароль пользователя
+        'HOST': env.str("POSTGRES_HOST"),  # Наименование контейнера для базы данных в Docker Compose
+        'PORT': env.str("POSTGRES_PORT"),  # Порт базы данных
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -103,7 +125,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -114,7 +135,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
